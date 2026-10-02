@@ -4,7 +4,7 @@
 [![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/)
 [![Environment Manager: uv](https://img.shields.io/badge/managed%20by-uv-orange.svg)](https://github.com/astral-sh/uv)
 
-A production-grade **MLOps** and **Inference Acceleration** project designed to bridge the gap between AI research and scalable software delivery.
+A production-grade **MLOps** and **Inference Acceleration** project designed to bridge the gap between AI research and scalable software delivery. It estimates a depth map from RGB image and generates a point cloud from the estimated depth map.
 
 **NOTE:** This repository demonstrates end-to-end production readiness, featuring high-performance inference via **ONNX Runtime**, containerized microservices with **FastAPI** and **Docker**, reproducible environments using **uv**, and automated **CI/CD pipelines** via **GitHub Actions**. Built to highlight core software engineering, infrastructure automation, and optimization practices that can be adapted to a custom computer vision model.
 
@@ -12,7 +12,7 @@ A production-grade **MLOps** and **Inference Acceleration** project designed to 
 
 ## 🏗 Architecture & Data Strategy
 
-Unlike naive implementations that convert relative depth maps into compressed 8-bit PNGs (destroying geometric integrity), this pipeline enforces strict MLOps and computer vision best practices:
+This pipeline enforces strict MLOps and computer vision best practices:
 1. **Raw Float32 Data Flow**: Inference outputs are preserved as raw `float32` `.npy` arrays to retain full precision for 3D reconstruction.
 2. **Resolution Matching (1:1)**: RGB images are downscaled to match the native model resolution (`384x384`), eliminating upscaling artifacts, grid lines, and diagonal distortions in the point cloud.
 3. **Model Lifecycle Management**: Integrates an automated export script (`export_onnx.py`) backed by **MLflow** for artifact tracking, parameter logging, and model lineage management—specifically designed to seamlessly ingest and evaluate custom-trained weights during PyTorch-to-ONNX compilation.
