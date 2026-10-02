@@ -49,3 +49,20 @@ jobs:
     - name: Run Unit and Integration Tests
       run: |
         uv run pytest tests/
+
+  docker-build:
+      needs: test
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
+
+        - name: Set up Docker Buildx
+          uses: docker/setup-buildx-action@v3
+
+        - name: Build Docker image (dry-run)
+          uses: docker/build-push-action@v5
+          with:
+            context: .
+            push: false
+            tags: depth-to-pointcloud-api:test
