@@ -1,0 +1,47 @@
+[project]
+name = "depth-to-pointcloud-mlops"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.142.2",
+    "loguru>=0.7.3",
+    "mlflow>=3.16.1",
+    "numpy>=2.4.6",
+    "onnx>=1.23.1",
+    "onnxruntime>=1.30.0",
+    "onnxscript>=0.7.2",
+    "open3d>=0.20.0",
+    "opencv-python-headless>=5.0.0.93",
+    "pillow>=12.3.0",
+    "pydantic>=2.13.5",
+    "pytest>=9.1.1",
+    "ruff>=0.16.9",
+    "timm>=1.0.30",
+    "torch>=2.14.1",
+    "torchvision>=0.29.1",
+    "uvicorn>=0.54.0",
+]
+
+[build-system]
+#requires = ["uv_build>=0.12.21,<0.13.0"]
+#build-backend = "uv_build"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }
+torchvision = { index = "pytorch-cpu" }
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/depth_to_pointcloud_mlops"]
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.6.2",
+]

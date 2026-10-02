@@ -1,0 +1,30 @@
+# Python / Environment
+__pycache__/
+.pytest_cache/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+.python-version
+
+# MLOps / Artifacts & Local DBs
+mlruns/
+mlflow.db
+models/*.onnx
+models/*.onnx.data
+data/processed/*
+data/raw/*
+# Exception from excluding data raw
+!data/raw/sample_image.jpg
+!data/raw/.gitkeep
+
+# IDE / Editor Settings
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS Specific
+.DS_Store
+Thumbs.db
