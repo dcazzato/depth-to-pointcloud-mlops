@@ -1,3 +1,5 @@
+"""Script to generate the pointcloud."""
+
 from pathlib import Path
 from loguru import logger
 
@@ -5,12 +7,11 @@ from src.depth_to_pointcloud_mlops.pipeline.pointcloud import generate_point_clo
 
 
 def main():
-    # Pathing robusto basato sulla posizione del file
     PROJECT_ROOT = Path(__file__).resolve().parents[3]
 
     rgb_path = PROJECT_ROOT / "data" / "raw" / "sample_image.jpg"
 
-    # NOTA: Usiamo il file .npy in float32, non il PNG a 8 bit!
+    # .npy since in float32
     depth_npy_path = PROJECT_ROOT / "data" / "processed" / "depth_raw.npy"
     output_ply_path = PROJECT_ROOT / "data" / "processed" / "point_cloud.ply"
 

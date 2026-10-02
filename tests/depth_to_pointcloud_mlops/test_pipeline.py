@@ -1,3 +1,5 @@
+"""Unit tests for the full inference pipeline."""
+
 from pathlib import Path
 import pytest
 from src.depth_to_pointcloud_mlops.pipeline.infer import DepthEstimatorONNX

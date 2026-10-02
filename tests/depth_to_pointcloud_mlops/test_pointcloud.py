@@ -1,3 +1,5 @@
+"""Unit tests for the depth2pointcloud part."""
+
 import pytest
 import numpy as np
 import open3d as o3d
