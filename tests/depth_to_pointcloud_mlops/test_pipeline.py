@@ -1,4 +1,4 @@
-"""Unit tests for the full inference pipeline."""
+"""Unit tests for the full pipeline."""
 
 from pathlib import Path
 import pytest

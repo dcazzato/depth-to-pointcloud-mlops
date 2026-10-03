@@ -1,3 +1,5 @@
+"""Unit tests for the FastAPI part"""
+
 from fastapi.testclient import TestClient
 from PIL import Image
 import io

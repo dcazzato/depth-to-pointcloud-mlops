@@ -8,7 +8,6 @@ from PIL import Image
 
 from src.depth_to_pointcloud_mlops.pipeline.infer import DepthEstimatorONNX
 
-# Risoluzione robusta della root del progetto
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 
@@ -67,7 +66,6 @@ def test_inference_execution(
 ) -> None:
     """Test end-to-end inference execution and check output depth map dimensions."""
     target_size = (384, 384)
-    # Ripristinato il metodo .predict originale con target_size
     depth_map = depth_estimator.predict(sample_image_path, target_size=target_size)
 
     assert isinstance(depth_map, np.ndarray)

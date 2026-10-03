@@ -34,6 +34,7 @@ depth-to-pointcloud-mlops/
 │   └── processed/              # Output .npy depth maps and .ply point clouds
 ├── models/                     # Exported ONNX weights (e.g., MiDaS_small.onnx)
 ├── src/
+│   ├── utils/                  # Utils folder (utils.py)
 │   └── depth_to_pointcloud_mlops/
 │       └── pipeline/
 │           ├── export_onnx.py  # PyTorch to ONNX compiler + MLflow tracking & custom weights

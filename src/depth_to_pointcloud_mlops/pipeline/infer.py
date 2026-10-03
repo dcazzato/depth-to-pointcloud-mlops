@@ -1,10 +1,10 @@
 """Native ONNX inference pipeline for Monocular Depth Estimation."""
 
 from pathlib import Path
+import cv2
 import loguru
 import numpy as np
 import onnxruntime as ort
-from PIL import Image
 
 logger = loguru.logger
 
@@ -39,11 +39,12 @@ class DepthEstimatorONNX:
         Returns:
             Preprocessed numpy array with shape (1, 3, H, W) and float32 dtype.
         """
-        image = Image.open(image_path).convert("RGB")
-        image = image.resize(target_size, Image.Resampling.BILINEAR)
+        image = cv2.imread(str(image_path))
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        image = cv2.resize(image, target_size, interpolation=cv2.INTER_LINEAR)
 
         # Convert to float32 numpy array and scale to [0, 1]
-        img_np = np.array(image, dtype=np.float32) / 255.0
+        img_np = image.astype(np.float32) / 255.0
 
         # Standard ImageNet normalization used by MiDaS
         mean = np.array([0.485, 0.456, 0.406], dtype=np.float32)
@@ -88,7 +89,5 @@ class DepthEstimatorONNX:
 
 
 if __name__ == "__main__":
-    # Quick sanity test execution when running this file directly
     estimator = DepthEstimatorONNX()
-    # Create a dummy test image if needed or test with a synthetic array
-    print("DepthEstimatorONNX is ready to use!")
+    logger.info("DepthEstimatorONNX is ready to use!")

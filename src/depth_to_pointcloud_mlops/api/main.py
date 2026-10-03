@@ -1,22 +1,22 @@
+"""FastAPI wrapper for Depth-to-PointCloud MLOps pipeline."""
+
 from pathlib import Path
 import shutil
 import tempfile
 from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi.responses import Response
 from loguru import logger
 import numpy as np
-import io
-from fastapi.responses import Response
-from PIL import Image
 
 from src.depth_to_pointcloud_mlops.pipeline.infer import DepthEstimatorONNX
 from src.depth_to_pointcloud_mlops.pipeline.pointcloud import generate_point_cloud
+import src.depth_to_pointcloud_mlops.utils.utils as utils
 
 app = FastAPI(
     title="Depth-to-PointCloud MLOps API",
     description="Production-grade API powered by ONNX Runtime and Open3D",
     version="0.1.0",
 )
-
 
 MODEL_PATH = Path("models/MiDaS_small.onnx")
 _estimator = None
@@ -45,7 +45,6 @@ async def convert_image(file: UploadFile = File(...)):
             tmp_path = Path(tmpdir)
             rgb_path = tmp_path / (file.filename or "input_image.jpg")
 
-            # Salva temporaneamente l'immagine caricata
             with open(rgb_path, "wb") as buffer:
                 shutil.copyfileobj(file.file, buffer)
 
@@ -59,8 +58,6 @@ async def convert_image(file: UploadFile = File(...)):
             logger.info("=== API: Running ONNX Depth Estimation ===")
             estimator = get_estimator()
             depth_map = estimator.predict(str(rgb_path))
-
-            # Salva l'array numpy della depth map
             np.save(str(depth_npy_path), depth_map)
 
             # --- STEP 2: POINT CLOUD GENERATION ---
@@ -86,6 +83,7 @@ async def convert_image(file: UploadFile = File(...)):
 
 @app.post("/convert/preview")
 async def convert_preview(file: UploadFile = File(...)):
+    """Accepts an RGB image and returns an 8-bit depth map preview image (PNG)."""
     try:
         with tempfile.TemporaryDirectory() as tmpdir:
             tmp_path = Path(tmpdir)
@@ -96,17 +94,16 @@ async def convert_preview(file: UploadFile = File(...)):
 
             estimator = get_estimator()
             depth_map = estimator.predict(str(rgb_path))
-            normalized_vis = (
-                (depth_map - depth_map.min())
-                / (depth_map.max() - depth_map.min() + 1e-5)
-                * 255
-            ).astype(np.uint8)
-            img_pil = Image.fromarray(normalized_vis)
-            img_byte_arr = io.BytesIO()
-            img_pil.save(img_byte_arr, format="PNG")
-            img_byte_arr.seek(0)
 
-            return Response(content=img_byte_arr.getvalue(), media_type="image/png")
+            png_bytes = utils.depth_to_png_bytes(depth_map)
+            return Response(content=png_bytes, media_type="image/png")
+
+    except ValueError as ve:
+        logger.error(f"Encoding error: {ve}")
+        raise HTTPException(status_code=500, detail=str(ve))
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Unexpected error during preview generation: {e}")
+        raise HTTPException(
+            status_code=500, detail="Internal server error during preview generation."
+        )

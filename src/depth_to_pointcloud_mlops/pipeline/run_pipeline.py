@@ -3,10 +3,12 @@
 import argparse
 from pathlib import Path
 from loguru import logger
+import numpy as np
+import cv2
 
 from src.depth_to_pointcloud_mlops.pipeline.infer import DepthEstimatorONNX
 from src.depth_to_pointcloud_mlops.pipeline.pointcloud import generate_point_cloud
-import numpy as np
+import src.depth_to_pointcloud_mlops.utils.utils as utils
 
 
 def main():
@@ -31,6 +33,13 @@ def main():
         default="data/processed",
         help="Directory for pipeline outputs",
     )
+    parser.add_argument(
+        "--target-size",
+        type=int,
+        nargs=2,
+        default=[384, 384],
+        help="Target size (width height) for the model input",
+    )
     args = parser.parse_args()
 
     PROJECT_ROOT = Path(__file__).resolve().parents[3]
@@ -54,25 +63,17 @@ def main():
     # --- STEP 1: INFERENCE ---
     logger.info("=== STEP 1: Running ONNX Depth Estimation ===")
     estimator = DepthEstimatorONNX(model_path=str(model_path))
-    depth_map = estimator.predict(str(rgb_path))
+    depth_map = estimator.predict(str(rgb_path), target_size=tuple(args.target_size))
 
-    # Save raw float32 numpy array and visualization PNG
     np.save(str(depth_npy_path), depth_map)
-
-    # Optional 8-bit visual preview export
-    from PIL import Image
-
-    normalized_vis = (
-        (depth_map - depth_map.min()) / (depth_map.max() - depth_map.min() + 1e-5) * 255
-    ).astype(np.uint8)
-    Image.fromarray(normalized_vis).save(depth_png_path)
-    logger.info(f"Depth maps saved to {output_dir}")
+    normalized_vis = utils.normalize_depth_map(depth_map)
+    cv2.imwrite(str(depth_png_path), normalized_vis)
+    logger.info(f"Depth maps and image successfully saved to {output_dir}")
 
     # --- STEP 2: POINT CLOUD GENERATION ---
     logger.info("=== STEP 2: Generating 3D Point Cloud (.ply) ===")
     generate_point_cloud(rgb_path, depth_npy_path, ply_path)
-
-    logger.info("Pipeline execution completed successfully from end to end!")
+    logger.success("Pipeline execution completed successfully from end to end!")
 
 
 if __name__ == "__main__":
